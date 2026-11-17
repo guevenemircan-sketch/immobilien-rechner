@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1F3A5F">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Immo-Rechner">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Immobilien-Rechner: Rendite und Finanzierung</title>
+<style>
+  :root{--navy:#1F3A5F;--light:#EEF2F7;--hil:#DCE6F2;--grid:#C9D3E0;--txt:#1d2430;--mut:#5b6575;--pos:#1E7B34;--neg:#B3261E;--bg:#F6F8FB}
+  *{box-sizing:border-box}
+  body{margin:0;padding-bottom:env(safe-area-inset-bottom);font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:var(--txt);background:var(--bg);font-size:14px;line-height:1.4}
+  header{background:var(--navy);color:#fff;padding:calc(16px + env(safe-area-inset-top)) calc(24px + env(safe-area-inset-right)) 16px calc(24px + env(safe-area-inset-left))}
+  header h1{margin:0;font-size:20px}
+  header p{margin:4px 0 0;opacity:.85;font-size:13px}
+  .wrap{display:grid;grid-template-columns:400px 1fr;gap:20px;padding:20px 24px;max-width:1400px;margin:0 auto}
+  @media(max-width:900px){.wrap{grid-template-columns:1fr;padding:14px}}
+  .panel{background:#fff;border:1px solid var(--grid);border-radius:8px;padding:14px 16px;margin-bottom:16px}
+  aside .panel{margin-bottom:12px}
+  @media(min-width:901px){aside{position:sticky;top:12px;align-self:start;max-height:calc(100vh - 24px);overflow:auto}}
+  h2{font-size:15px;color:var(--navy);margin:0 0 10px}
+  label{display:grid;grid-template-columns:1fr 215px;align-items:center;gap:8px;margin:6px 0;font-size:13px}
+  label.chk{grid-template-columns:auto 1fr;justify-content:start}
+  input[type=number]{width:100%;padding:6px 8px;border:1px solid var(--grid);border-radius:5px;font-size:14px;text-align:right;font-variant-numeric:tabular-nums}
+  input:focus{outline:2px solid #7FA3CF;border-color:#7FA3CF}
+  label>span{display:flex;align-items:center;gap:6px}
+  .unit{color:var(--mut);font-size:11px;min-width:85px}
+  button{background:#fff;border:1px solid var(--navy);color:var(--navy);border-radius:5px;padding:6px 12px;cursor:pointer;font-size:13px}
+  button:hover{background:var(--light)}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:16px}
+  .kpi{background:#fff;border:1px solid var(--grid);border-radius:8px;padding:12px 14px}
+  .kpi .l{font-size:12px;color:var(--mut)}
+  .kpi .v{font-size:19px;white-space:nowrap;font-weight:700;margin-top:2px;font-variant-numeric:tabular-nums}
+  .kpi .s{font-size:12px;color:var(--mut);margin-top:2px}
+  table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+  th,td{padding:6px 10px;border-bottom:1px solid var(--grid);text-align:right;white-space:nowrap}
+  th:first-child,td:first-child{text-align:left;white-space:normal}
+  thead th{background:var(--navy);color:#fff;font-weight:600;font-size:13px}
+  tbody tr:nth-child(even){background:var(--light)}
+  tr.b td{font-weight:700}
+  tr.h td{background:var(--hil)}
+  .pos{color:var(--pos)} .neg{color:var(--neg)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:1100px){.grid2{grid-template-columns:1fr}}
+  .note{font-size:12px;color:var(--mut);margin-top:8px}
+  .scroll{max-height:420px;overflow:auto}
+  .wrap>*,.grid2>*{min-width:0}
+  main .panel{overflow-x:auto}
+  @media(max-width:600px){
+    header h1{font-size:18px}
+    .wrap{padding:12px 10px;gap:12px}
+    label{grid-template-columns:1fr 165px;font-size:13px}
+    .unit{min-width:48px;font-size:10.5px}
+    .kpis{grid-template-columns:1fr 1fr;gap:8px}
+    .kpi{padding:10px}
+    .kpi .v{font-size:16px;white-space:normal}
+    th,td{padding:5px 6px;font-size:12.5px}
+    .panel{padding:12px 10px}
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Immobilien-Rechner: Rendite und Finanzierung</h1>
+  <p>Werte eingeben, alle Ergebnisse rechnen sofort neu. Eingaben bleiben in diesem Browser gespeichert.</p>
+</header>
+
+<div class="wrap">
+<aside>
+  <div class="panel">
+    <h2>Objekt</h2>
+    <label>Kaufpreis <span><input type="number" id="kp" step="1000"><span class="unit">€</span></span></label>
+    <label>Wohnfläche <span><input type="number" id="wfl" step="1"><span class="unit">m²</span></span></label>
+  </div>
+  <div class="panel">
+    <h2>Miete (Netto-Kaltmiete pro Jahr)</h2>
+    <label>Ist-Miete <span><input type="number" id="ist" step="100"><span class="unit">€ / Jahr</span></span></label>
+    <label>Soll-Miete <span><input type="number" id="soll" step="100"><span class="unit">€ / Jahr</span></span></label>
+    <label>Nicht umlagefähige Kosten <span><input type="number" id="bew" step="100"><span class="unit">€ / Jahr</span></span></label>
+  </div>
+  <div class="panel">
+    <h2>Kaufnebenkosten</h2>
+    <label>Grunderwerbsteuer <span><input type="number" id="grest" step="0.1"><span class="unit">%</span></span></label>
+    <label>Notar und Grundbuch <span><input type="number" id="notar" step="0.1"><span class="unit">%</span></span></label>
+    <label>Makler <span><input type="number" id="makler" step="0.01"><span class="unit">%</span></span></label>
+  </div>
+  <div class="panel">
+    <h2>Finanzierung</h2>
+    <label>Finanzierung Kaufpreis <span><input type="number" id="quote" step="5"><span class="unit">% des Kaufpreises</span></span></label>
+    <label class="chk"><input type="checkbox" id="nkfin"> Kaufnebenkosten mitfinanzieren</label>
+    <label>Sollzins <span><input type="number" id="zins" step="0.05"><span class="unit">% p. a.</span></span></label>
+    <label>Anfängliche Tilgung <span><input type="number" id="tilg" step="0.1"><span class="unit">% p. a.</span></span></label>
+    <label>Betrachtung / Zinsbindung <span><input type="number" id="jahre" step="1" min="1" max="50"><span class="unit">Jahre</span></span></label>
+  </div>
+  <div class="panel">
+    <h2>Zielwerte</h2>
+    <label>Ziel-Mietrendite <span><input type="number" id="ziel" step="0.5"><span class="unit">% brutto</span></span></label>
+    <label>Opportunitätszins Eigenkapital <span><input type="number" id="opp" step="0.5"><span class="unit">% p. a.</span></span></label>
+    <button id="reset" type="button">Auf Startwerte zurücksetzen</button>
+  </div>
+</aside>
+
+<main>
+  <div class="kpis" id="kpis"></div>
+
+  <div class="grid2">
+    <div class="panel">
+      <h2>Kaufkosten und Kapitalbedarf</h2>
+      <table id="tKosten"></table>
+    </div>
+    <div class="panel">
+      <h2>Rendite und Kennzahlen</h2>
+      <table id="tRendite"></table>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="panel">
+      <h2>Bankrate</h2>
+      <table id="tRate"></table>
+    </div>
+    <div class="panel">
+      <h2>Cashflow: Miete minus Bankrate</h2>
+      <table id="tCash"></table>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2 id="hVergleich">Vergleich Tilgungssätze</h2>
+    <table id="tVergleich"></table>
+  </div>
+
+  <div class="grid2">
+    <div class="panel">
+      <h2>Zielpreise</h2>
+      <table id="tZiel"></table>
+      <p class="note">„Kostendeckend“ ist der Kaufpreis, bei dem die Miete abzüglich nicht umlagefähiger Kosten genau die Bankrate deckt, also Zuzahlung 0 €. Die Rechnung nutzt die eingestellte Finanzierungsquote, den Zins und die Tilgung.</p>
+    </div>
+    <div class="panel">
+      <h2 id="hPlan">Tilgungsplan</h2>
+      <div class="scroll"><table id="tPlan"></table></div>
+    </div>
+  </div>
+
+  <p class="note">Annuitätendarlehen mit monatlicher Rate und monatlicher Verrechnung. Rate = Darlehen × (Sollzins + Tilgung) / 12. Bruttomietrendite = Jahresmiete / Kaufpreis. Nettomietrendite = (Jahresmiete − nicht umlagefähige Kosten) / Gesamtinvestition. Alle Werte sind Modellrechnungen ohne Steuern und Mietsteigerung.</p>
+</main>
+</div>
+
+<script>
+const DEF = {kp:500000,wfl:450,ist:33000,soll:36000,bew:0,grest:6.5,notar:2,makler:0,quote:100,nkfin:false,zins:5,tilg:2,jahre:10,ziel:8,opp:3};
+const IDS = Object.keys(DEF);
+const KEY = "immo-rechner-app-v1";
+
+const fmt = (x,d=0) => (Math.abs(x)<0.005?0:x).toLocaleString("de-DE",{minimumFractionDigits:d,maximumFractionDigits:d});
+const eur = (x,d=0) => fmt(x,d)+" €";
+const pct = (x,d=2) => fmt(x,d)+" %";
+const sgn = (x,d=0) => { const v=Math.abs(x)<0.005?0:x; const c=v>0?"pos":v<0?"neg":""; const s=v>0?"+":v<0?"−":""; return `<span class="${c}">${s}${fmt(Math.abs(v),d)} €</span>`; };
+
+function load(){
+  let s={}; try{ s=JSON.parse(localStorage.getItem(KEY)||"{}"); }catch(e){}
+  IDS.forEach(k=>{ const el=document.getElementById(k); const v=(k in s)?s[k]:DEF[k]; if(el.type==="checkbox") el.checked=!!v; else el.value=v; });
+}
+function read(){
+  const v={}; IDS.forEach(k=>{ const el=document.getElementById(k); v[k]= el.type==="checkbox" ? el.checked : (parseFloat(el.value)||0); });
+  try{ localStorage.setItem(KEY,JSON.stringify(v)); }catch(e){}
+  return v;
+}
+
+// Annuität: liefert Rate, Restschuld nach m Monaten, Summen
+function annuity(D, z, t, years){
+  const i=z/100/12, R=D*(z+t)/100/12, n=Math.round(years*12);
+  let rest=D, zSum=0, tSum=0; const rows=[];
+  for(let y=1;y<=years;y++){
+    let zy=0, ty=0;
+    for(let m=0;m<12;m++){ if(rest<=0) break; const zm=rest*i; let tm=R-zm; if(tm>rest) tm=rest; rest-=tm; zy+=zm; ty+=tm; }
+    zSum+=zy; tSum+=ty; rows.push({y,zy,ty,rest:Math.max(rest,0)});
+  }
+  let lauf=Infinity;
+  if(D<=0) lauf=0; else if(i===0) lauf=R>0?D/R:Infinity; else if(R>D*i) lauf=-Math.log(1-i*D/R)/Math.log(1+i);
+  return {R, rest:Math.max(rest,0), zSum, tSum, rows, laufJahre:lauf/12, zins1:D*i, tilg1:R-D*i};
+}
+const tbl=(id,head,rows)=>{ document.getElementById(id).innerHTML=(head?`<thead><tr>${head.map(h=>`<th>${h}</th>`).join("")}</tr></thead>`:"")+`<tbody>${rows.map(r=>{const cls=r.cls?` class="${r.cls}"`:""; return `<tr${cls}>${r.c.map(c=>`<td>${c}</td>`).join("")}</tr>`;}).join("")}</tbody>`; };
+
+function calc(){
+  const v=read();
+  const nkPct=(v.grest+v.notar+v.makler)/100;
+  const grest=v.kp*v.grest/100, notar=v.kp*v.notar/100, makler=v.kp*v.makler/100, nk=grest+notar+makler;
+  const gesamt=v.kp+nk;
+  const darlehen=v.kp*v.quote/100 + (v.nkfin?nk:0);
+  const ek=Math.max(gesamt-darlehen,0);
+  const J=Math.max(1,Math.round(v.jahre));
+  const a=annuity(darlehen,v.zins,v.tilg,J);
+  const rateJ=a.R*12;
+  const istN=v.ist-v.bew, sollN=v.soll-v.bew;
+  const cfIst=istN-rateJ, cfSoll=sollN-rateJ;
+
+  document.getElementById("hVergleich").textContent=`Vergleich Tilgungssätze (Sollzins ${fmt(v.zins,2)} %, Restschuld nach ${J} Jahren)`;
+  document.getElementById("hPlan").textContent=`Tilgungsplan über ${J} Jahre`;
+
+  // KPIs
+  const lauf=isFinite(a.laufJahre)?fmt(a.laufJahre,1)+" Jahre":"keine Volltilgung";
+  document.getElementById("kpis").innerHTML=[
+    ["Bruttomietrendite Ist / Soll", pct(v.ist/v.kp*100)+" / "+pct(v.soll/v.kp*100), "Faktor "+fmt(v.kp/v.ist,2)+" / "+fmt(v.kp/v.soll,2)],
+    ["Monatliche Bankrate", eur(a.R,2), `${fmt(v.zins,2)} % Zins, ${fmt(v.tilg,2)} % Tilgung`],
+    ["Ergebnis pro Monat (Ist)", sgn(cfIst/12,2), "Soll: "+sgn(cfSoll/12,2)],
+    ["Restschuld nach "+J+" Jahren", eur(a.rest), "Volltilgung nach "+lauf],
+    ["Eigenkapital beim Kauf", eur(ek), "Darlehen "+eur(darlehen)],
+  ].map(k=>`<div class="kpi"><div class="l">${k[0]}</div><div class="v">${k[1]}</div><div class="s">${k[2]}</div></div>`).join("");
+
+  tbl("tKosten",["Position","Betrag"],[
+    {c:["Kaufpreis",eur(v.kp)]},
+    {c:[`Grunderwerbsteuer (${fmt(v.grest,2)} %)`,eur(grest)]},
+    {c:[`Notar und Grundbuch (${fmt(v.notar,2)} %)`,eur(notar)]},
+    {c:[`Makler (${fmt(v.makler,2)} %)`,v.makler?eur(makler):"entfällt"]},
+    {c:["Kaufnebenkosten gesamt",eur(nk)]},
+    {cls:"b",c:["Gesamtinvestition",eur(gesamt)]},
+    {cls:"b h",c:[`Darlehen (${fmt(v.quote,0)} % Kaufpreis${v.nkfin?" + Nebenkosten":""})`,eur(darlehen)]},
+    {cls:"b",c:["Eigenkapital beim Kauf",eur(ek)]},
+    {c:[`Entgangene Zinsen auf Eigenkapital (${fmt(v.opp,1)} %, ${J} J., ohne Zinseszins)`,eur(ek*v.opp/100*J)]},
+  ]);
+
+  tbl("tRendite",["","Ist-Miete","Soll-Miete"],[
+    {c:["Jahresmiete",eur(v.ist),eur(v.soll)]},
+    {c:["Monatsmiete",eur(v.ist/12,2),eur(v.soll/12,2)]},
+    {c:["Kaufpreisfaktor",fmt(v.kp/v.ist,2)+"-fach",fmt(v.kp/v.soll,2)+"-fach"]},
+    {cls:"b",c:["Bruttomietrendite (Miete / Kaufpreis)",pct(v.ist/v.kp*100),pct(v.soll/v.kp*100)]},
+    {c:["Nettomietrendite (auf Gesamtinvestition)",pct(istN/gesamt*100),pct(sollN/gesamt*100)]},
+    {c:["Miete je m² Wohnfläche / Monat",v.wfl?fmt(v.ist/12/v.wfl,2)+" €/m²":"–",v.wfl?fmt(v.soll/12/v.wfl,2)+" €/m²":"–"]},
+    {c:["Kaufpreis je m² Wohnfläche",v.wfl?eur(v.kp/v.wfl,2):"–",""]},
+  ]);
+
+  tbl("tRate",["","Monat","Jahr"],[
+    {c:["Zinsanteil (1. Monat / 1. Jahr)",eur(a.zins1,2),eur(a.rows[0]?a.rows[0].zy:0,2)]},
+    {c:["Tilgungsanteil (1. Monat / 1. Jahr)",eur(a.tilg1,2),eur(a.rows[0]?a.rows[0].ty:0,2)]},
+    {cls:"b h",c:["Bankrate",eur(a.R,2),eur(rateJ,2)]},
+    {c:[`Gezahlte Zinsen in ${J} Jahren`,"",eur(a.zSum)]},
+    {c:[`Getilgt in ${J} Jahren`,"",eur(a.tSum)]},
+    {cls:"b",c:[`Restschuld nach ${J} Jahren`,"",eur(a.rest)]},
+    {c:["Laufzeit bis Volltilgung","",lauf]},
+  ]);
+
+  tbl("tCash",["","Ist-Miete","Soll-Miete"],[
+    {c:["Miete pro Jahr",eur(v.ist),eur(v.soll)]},
+    {c:["Nicht umlagefähige Kosten",sgn(-v.bew),sgn(-v.bew)]},
+    {c:["Bankrate pro Jahr",sgn(-rateJ),sgn(-rateJ)]},
+    {cls:"b h",c:["Ergebnis pro Monat",sgn(cfIst/12,2),sgn(cfSoll/12,2)]},
+    {cls:"b",c:["Ergebnis pro Jahr",sgn(cfIst),sgn(cfSoll)]},
+    {c:[`Ergebnis über ${J} Jahre`,sgn(cfIst*J),sgn(cfSoll*J)]},
+    {c:["Deckung der Rate durch die Miete",rateJ?pct(istN/rateJ*100,1):"–",rateJ?pct(sollN/rateJ*100,1):"–"]},
+  ]);
+
+  const tset=[...new Set([1,1.5,2,3,v.tilg].map(x=>Math.round(x*100)/100))].sort((x,y)=>x-y);
+  tbl("tVergleich",["Tilgung","Rate / Monat","Zins / Monat","Tilgung / Monat","Ergebnis Ist / Monat","Ergebnis Soll / Monat","Getilgt "+J+" J.","Restschuld "+J+" J."],
+    tset.map(t=>{ const b=annuity(darlehen,v.zins,t,J); return {cls:t===Math.round(v.tilg*100)/100?"h b":"",c:[fmt(t,2)+" %",eur(b.R,2),eur(b.zins1,2),eur(b.tilg1,2),sgn(istN/12-b.R,2),sgn(sollN/12-b.R,2),eur(b.tSum),eur(b.rest)]}; }));
+
+  // Zielpreise: Darlehen(P) = P*(q + nk falls finanziert)
+  const fak=v.quote/100+(v.nkfin?nkPct:0), zt=(v.zins+v.tilg)/100;
+  const be=(n)=> (fak>0&&zt>0)? n/(fak*zt) : NaN;
+  const zp=(m)=> v.ziel>0 ? m/(v.ziel/100) : NaN;
+  const diff=(p)=> isFinite(p)? sgn(p-v.kp)+` (${fmt((p/v.kp-1)*100,1)} %)` : "–";
+  tbl("tZiel",["","Ist-Miete","Soll-Miete"],[
+    {cls:"b",c:[`Preis für ${fmt(v.ziel,1)} % Bruttorendite`,isFinite(zp(v.ist))?eur(zp(v.ist)):"–",isFinite(zp(v.soll))?eur(zp(v.soll)):"–"]},
+    {c:["Abstand zum Kaufpreis",diff(zp(v.ist)),diff(zp(v.soll))]},
+    {cls:"b",c:["Kostendeckender Preis (Zuzahlung 0 €)",isFinite(be(istN))?eur(be(istN)):"–",isFinite(be(sollN))?eur(be(sollN)):"–"]},
+    {c:["Abstand zum Kaufpreis",diff(be(istN)),diff(be(sollN))]},
+  ]);
+
+  tbl("tPlan",["Jahr","Zinsen","Tilgung","Rate","Restschuld"],
+    a.rows.map(r=>({c:[r.y,eur(r.zy),eur(r.ty),eur(r.zy+r.ty),eur(r.rest)]})));
+}
+
+load();
+document.querySelectorAll("aside input").forEach(el=>el.addEventListener("input",calc));
+document.getElementById("reset").addEventListener("click",()=>{ try{localStorage.removeItem(KEY);}catch(e){} load(); calc(); });
+calc();
+if ('serviceWorker' in navigator && location.protocol === 'https:') {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+</script>
+</body>
+</html>
